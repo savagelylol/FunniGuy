@@ -49,39 +49,19 @@ class Core(commands.Cog):
         # Complete command processing
         await self.bot.data_manager.complete_command(interaction.user.id, "ping")
 
-    @app_commands.command(name="hello", description="Get a friendly greeting from FunniGuy!")
-    async def hello_command(self, interaction: discord.Interaction):
+    @commands.command(name="hello")
+    async def hello_command(self, ctx: commands.Context):
         """Friendly greeting command"""
-        # Process command through data manager
-        cmd_result = await self.bot.data_manager.process_command(
-            interaction.user.id, 
-            interaction.user.name, 
-            interaction.user.display_name,
-            "hello"
-        )
-        
-        if not cmd_result.get('can_execute', False):
-            error_msg = cmd_result.get('error', 'Unknown error')
-            embed = create_error_embed(f"Cannot execute command: {error_msg}")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-        
         embed = create_info_embed(
-            f"Hello there, {interaction.user.mention}! 👋\n"
+            f"Hello there, {ctx.author.mention}! 👋\n"
             f"I'm FunniGuy, your friendly Discord bot! 😄\n"
             f"I'm here to make your server more fun and entertaining!",
             title="Hello!"
         )
-        await interaction.response.send_message(embed=embed)
-        
-        # Complete command processing and award experience
-        completion_result = await self.bot.data_manager.complete_command(interaction.user.id, "hello")
-        if completion_result.get('achievements_unlocked'):
-            # User could be awarded their first achievement here
-            pass
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="info", description="Get information about FunniGuy bot")
-    async def info_command(self, interaction: discord.Interaction):
+    @commands.command(name="info")
+    async def info_command(self, ctx: commands.Context):
         """Bot information command"""
         # Get system status from data manager
         system_status = await self.bot.data_manager.get_system_status()
@@ -89,7 +69,7 @@ class Core(commands.Cog):
         
         embed = discord.Embed(
             title="🤖 FunniGuy Bot Info",
-            description="A fun and entertaining Discord bot with comprehensive data persistence!",
+            description="A complete Dank Memer clone with 80+ commands!",
             color=discord.Color.blue()
         )
         
@@ -113,37 +93,23 @@ class Core(commands.Cog):
         
         embed.add_field(
             name="🎯 Features",
-            value="• User Profiles & Levels\n• Economy System\n• Inventory & Items\n• Achievements\n• Pet System\n• Marriage System\n• Cooldown Management",
+            value="• 80+ Commands\n• Economy System\n• Gambling & Games\n• Fun & Meme Commands\n• Social Features\n• Pet System\n• Marriage System",
             inline=False
         )
         
-        embed.set_footer(text="FunniGuy Bot - Data Persistence System", icon_url=self.bot.user.avatar.url if self.bot.user and self.bot.user.avatar else None)
+        embed.set_footer(text="FunniGuy Bot - Dank Memer Clone", icon_url=self.bot.user.avatar.url if self.bot.user and self.bot.user.avatar else None)
         
-        await interaction.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="profile", description="View your user profile and statistics")
-    async def profile_command(self, interaction: discord.Interaction):
+    @commands.command(name="profile")
+    async def profile_command(self, ctx: commands.Context):
         """Display user profile with comprehensive statistics"""
-        # Process command through data manager
-        cmd_result = await self.bot.data_manager.process_command(
-            interaction.user.id, 
-            interaction.user.name, 
-            interaction.user.display_name,
-            "profile"
-        )
-        
-        if not cmd_result.get('can_execute', False):
-            error_msg = cmd_result.get('error', 'Unknown error')
-            embed = create_error_embed(f"Cannot execute command: {error_msg}")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-        
         # Get comprehensive user overview
-        user_overview = await self.bot.data_manager.get_user_overview(interaction.user.id)
+        user_overview = await self.bot.data_manager.get_user_overview(ctx.author.id)
         
         if 'error' in user_overview:
             embed = create_error_embed("Failed to retrieve profile data")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
             return
         
         profile = user_overview.get('profile', {})
@@ -151,7 +117,7 @@ class Core(commands.Cog):
         achievements = user_overview.get('achievements', {})
         
         embed = discord.Embed(
-            title=f"👤 {interaction.user.display_name}'s Profile",
+            title=f"👤 {ctx.author.display_name}'s Profile",
             color=discord.Color.green()
         )
         
@@ -208,30 +174,13 @@ class Core(commands.Cog):
         basic_info = profile.get('basic_info', {})
         embed.set_footer(text=f"Account created {basic_info.get('account_age_days', 0)} days ago")
         
-        await interaction.response.send_message(embed=embed)
-        
-        # Complete command processing
-        await self.bot.data_manager.complete_command(interaction.user.id, "profile")
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="balance", description="Check your current balance")
-    async def balance_command(self, interaction: discord.Interaction):
+    @commands.command(name="balance", aliases=["bal"])
+    async def balance_command(self, ctx: commands.Context):
         """Display user's current balance"""
-        # Process command through data manager
-        cmd_result = await self.bot.data_manager.process_command(
-            interaction.user.id, 
-            interaction.user.name, 
-            interaction.user.display_name,
-            "balance"
-        )
-        
-        if not cmd_result.get('can_execute', False):
-            error_msg = cmd_result.get('error', 'Unknown error')
-            embed = create_error_embed(f"Cannot execute command: {error_msg}")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-        
         # Get user balance
-        pocket, bank = await self.bot.data_manager.get_balance(interaction.user.id)
+        pocket, bank = await self.bot.data_manager.get_balance(ctx.author.id)
         total = pocket + bank
         
         embed = discord.Embed(
@@ -258,7 +207,7 @@ class Core(commands.Cog):
         )
         
         # Add marriage bonus info if married
-        is_married = await self.bot.data_manager.is_married(interaction.user.id)
+        is_married = await self.bot.data_manager.is_married(ctx.author.id)
         if is_married:
             embed.add_field(
                 name="💕 Marriage Bonus",
@@ -266,40 +215,17 @@ class Core(commands.Cog):
                 inline=False
             )
         
-        await interaction.response.send_message(embed=embed)
-        
-        # Complete command processing
-        await self.bot.data_manager.complete_command(interaction.user.id, "balance")
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="daily", description="Claim your daily reward")
-    async def daily_command(self, interaction: discord.Interaction):
+    @commands.command(name="daily")
+    async def daily_command(self, ctx: commands.Context):
         """Claim daily bonus"""
-        # Process command through data manager
-        cmd_result = await self.bot.data_manager.process_command(
-            interaction.user.id, 
-            interaction.user.name, 
-            interaction.user.display_name,
-            "daily"
-        )
-        
-        if not cmd_result.get('can_execute', False):
-            error_msg = cmd_result.get('error', 'Unknown error')
-            time_remaining = cmd_result.get('time_remaining', '')
-            
-            if 'cooldown' in error_msg.lower():
-                embed = create_error_embed(f"You already claimed your daily reward!\nNext daily available in: {time_remaining}")
-            else:
-                embed = create_error_embed(f"Cannot execute command: {error_msg}")
-            
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-        
         # Claim daily bonus
-        success, amount = await self.bot.data_manager.economy.claim_daily_bonus(interaction.user.id)
+        success, amount = await self.bot.data_manager.economy.claim_daily_bonus(ctx.author.id)
         
         if not success:
             embed = create_error_embed("Failed to claim daily bonus. You may have already claimed it today.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
             return
         
         embed = create_success_embed(
@@ -308,7 +234,7 @@ class Core(commands.Cog):
         )
         
         # Check if user is married for bonus message
-        is_married = await self.bot.data_manager.is_married(interaction.user.id)
+        is_married = await self.bot.data_manager.is_married(ctx.author.id)
         if is_married:
             embed.add_field(
                 name="💕 Marriage Bonus Applied!",
@@ -316,17 +242,13 @@ class Core(commands.Cog):
                 inline=False
             )
         
-        await interaction.response.send_message(embed=embed)
-        
-        # Complete command processing and award experience
-        completion_result = await self.bot.data_manager.complete_command(interaction.user.id, "daily")
-        await self.bot.data_manager.award_experience(interaction.user.id, 10, "Daily bonus")
+        await ctx.send(embed=embed)
 
     @commands.command(name="test")
     async def test_command(self, ctx: commands.Context):
         """Test prefix command"""
         embed = create_success_embed(
-            "Prefix commands are working! ✅\nTry the slash commands: /profile, /balance, /daily",
+            "Prefix commands are working! ✅\nTry: fg profile, fg balance, fg daily, fg help",
             title="Test Command"
         )
         await ctx.send(embed=embed)

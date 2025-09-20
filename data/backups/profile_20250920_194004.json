@@ -1,0 +1,21 @@
+{
+  "user_id": 999999999999999999,
+  "username": "TestUser",
+  "display_name": "Test User",
+  "created_at": "2025-09-20T19:40:04.143582",
+  "last_active": "2025-09-20T19:40:04.169480",
+  "level": 1,
+  "experience": 10,
+  "total_commands_used": 2,
+  "daily_commands_used": 2,
+  "daily_reset_date": "2025-09-20",
+  "timezone": null,
+  "language": "en",
+  "notifications_enabled": true,
+  "privacy_mode": false,
+  "bio": null,
+  "favorite_color": null,
+  "status_message": null,
+  "friends": [],
+  "blocked_users": []
+}

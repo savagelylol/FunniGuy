@@ -45,7 +45,7 @@ class FunniGuyBot(commands.Bot):
         
         # Initialize bot
         super().__init__(
-            command_prefix=os.getenv('BOT_PREFIX', '!'),
+            command_prefix='fg ',
             intents=intents,
             help_command=None  # We'll create custom help
         )
@@ -55,6 +55,10 @@ class FunniGuyBot(commands.Bot):
         
         self.initial_extensions = [
             'cogs.core',
+            'cogs.economy',
+            'cogs.fun',
+            'cogs.gambling',
+            'cogs.utility',
         ]
     
     async def setup_hook(self):
@@ -69,12 +73,8 @@ class FunniGuyBot(commands.Bot):
         
         logger.info("Data manager initialized successfully!")
         
-        # Sync slash commands
-        try:
-            synced = await self.tree.sync()
-            logger.info(f"Synced {len(synced)} command(s)")
-        except Exception as e:
-            logger.error(f"Failed to sync commands: {e}")
+        # No slash commands - using prefix commands only
+        logger.info("Using prefix commands with 'fg ' prefix")
         
         # Load extensions
         for extension in self.initial_extensions:

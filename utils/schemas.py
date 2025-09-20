@@ -31,15 +31,7 @@ class PetType(Enum):
     ROBOT = "robot"
 
 
-class ItemCategory(Enum):
-    """Item categories for inventory"""
-    FOOD = "food"
-    TOOLS = "tools"
-    COLLECTIBLES = "collectibles"
-    CONSUMABLES = "consumables"
-    GIFTS = "gifts"
-    PET_ITEMS = "pet_items"
-    SPECIAL = "special"
+# ItemCategory moved to line 442 with more comprehensive categories
 
 
 class MarriageStatus(Enum):
@@ -112,7 +104,7 @@ class PrestigeData:
 
 
 @dataclass
-class ItemEffect:
+class ActiveItemEffect:
     """Individual item effect with duration tracking"""
     effect_type: str
     value: float
@@ -128,8 +120,8 @@ class ItemEffect:
 class ActiveEffects:
     """User's currently active item effects"""
     user_id: int
-    temporary_effects: List[ItemEffect] = field(default_factory=list)
-    permanent_effects: List[ItemEffect] = field(default_factory=list)
+    temporary_effects: List[ActiveItemEffect] = field(default_factory=list)
+    permanent_effects: List[ActiveItemEffect] = field(default_factory=list)
     last_update: str = field(default_factory=lambda: datetime.utcnow().isoformat())
     
     def to_dict(self) -> Dict[str, Any]:

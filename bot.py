@@ -11,6 +11,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 from utils.embeds import create_success_embed, create_error_embed, create_info_embed
+from utils.data_manager import DataManager
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -44,6 +46,9 @@ class FunniGuyBot(commands.Bot):
             help_command=None  # We'll create custom help
         )
         
+        # Initialize data manager
+        self.data_manager = DataManager('data')
+        
         self.initial_extensions = [
             # Add cog files here when created
         ]
@@ -51,6 +56,14 @@ class FunniGuyBot(commands.Bot):
     async def setup_hook(self):
         """Called when the bot is starting up"""
         logger.info("Setting up FunniGuy Bot...")
+        
+        # Initialize data manager
+        data_init_success = await self.data_manager.initialize()
+        if not data_init_success:
+            logger.error("Failed to initialize data manager!")
+            return
+        
+        logger.info("Data manager initialized successfully!")
         
         # Sync slash commands
         try:
@@ -77,6 +90,16 @@ class FunniGuyBot(commands.Bot):
             activity=discord.Game(name="Making people laugh! 😄"),
             status=discord.Status.online
         )
+        
+        # Log system status
+        system_status = await self.data_manager.get_system_status()
+        logger.info(f"Data system status: {system_status.get('initialized', False)}")
+    
+    async def close(self):
+        """Called when the bot is shutting down"""
+        logger.info("Shutting down FunniGuy Bot...")
+        await self.data_manager.shutdown()
+        await super().close()
     
     async def on_error(self, event_method: str, *args, **kwargs):
         """Global error handler"""
@@ -107,17 +130,48 @@ bot = FunniGuyBot()
 @bot.tree.command(name="ping", description="Test command to check if the bot is working")
 async def ping_command(interaction: discord.Interaction):
     """Simple ping command to test bot functionality"""
+    # Process command through data manager
+    cmd_result = await bot.data_manager.process_command(
+        interaction.user.id, 
+        interaction.user.name, 
+        interaction.user.display_name,
+        "ping"
+    )
+    
+    if not cmd_result.get('can_execute', False):
+        error_msg = cmd_result.get('error', 'Unknown error')
+        embed = create_error_embed(f"Cannot execute command: {error_msg}")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
     latency = round(bot.latency * 1000)
     embed = create_success_embed(
         f"Pong! 🏓\nLatency: {latency}ms",
         title="Bot Status"
     )
     await interaction.response.send_message(embed=embed)
+    
+    # Complete command processing
+    await bot.data_manager.complete_command(interaction.user.id, "ping")
 
 
 @bot.tree.command(name="hello", description="Get a friendly greeting from FunniGuy!")
 async def hello_command(interaction: discord.Interaction):
     """Friendly greeting command"""
+    # Process command through data manager
+    cmd_result = await bot.data_manager.process_command(
+        interaction.user.id, 
+        interaction.user.name, 
+        interaction.user.display_name,
+        "hello"
+    )
+    
+    if not cmd_result.get('can_execute', False):
+        error_msg = cmd_result.get('error', 'Unknown error')
+        embed = create_error_embed(f"Cannot execute command: {error_msg}")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
     embed = create_info_embed(
         f"Hello there, {interaction.user.mention}! 👋\n"
         f"I'm FunniGuy, your friendly Discord bot! 😄\n"
@@ -125,36 +179,52 @@ async def hello_command(interaction: discord.Interaction):
         title="Hello!"
     )
     await interaction.response.send_message(embed=embed)
+    
+    # Complete command processing and award experience
+    completion_result = await bot.data_manager.complete_command(interaction.user.id, "hello")
+    if completion_result.get('achievements_unlocked'):
+        # User could be awarded their first achievement here
+        pass
 
 
 @bot.tree.command(name="info", description="Get information about FunniGuy bot")
 async def info_command(interaction: discord.Interaction):
     """Bot information command"""
+    # Get system status from data manager
+    system_status = await bot.data_manager.get_system_status()
+    db_info = system_status.get('database_info', {})
+    
     embed = discord.Embed(
         title="🤖 FunniGuy Bot Info",
-        description="A fun and entertaining Discord bot!",
+        description="A fun and entertaining Discord bot with comprehensive data persistence!",
         color=discord.Color.blue()
     )
     
     embed.add_field(
         name="📊 Stats",
-        value=f"Servers: {len(bot.guilds)}\nLatency: {round(bot.latency * 1000)}ms",
+        value=f"Servers: {len(bot.guilds)}\nLatency: {round(bot.latency * 1000)}ms\nUsers: {db_info.get('total_users', 0)}",
         inline=True
     )
     
     embed.add_field(
         name="🛠️ Built with",
-        value="discord.py\nPython 3.11",
+        value="discord.py\nPython 3.11\nJSON Data Persistence",
         inline=True
     )
     
     embed.add_field(
-        name="🎯 Purpose",
-        value="To bring fun and entertainment to your Discord server!",
+        name="💾 Data System",
+        value=f"Status: {'✅ Online' if system_status.get('initialized') else '❌ Offline'}\nData Size: {db_info.get('total_size_mb', 0)}MB",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🎯 Features",
+        value="• User Profiles & Levels\n• Economy System\n• Inventory & Items\n• Achievements\n• Pet System\n• Marriage System\n• Cooldown Management",
         inline=False
     )
     
-    embed.set_footer(text="FunniGuy Bot", icon_url=bot.user.avatar.url if bot.user and bot.user.avatar else None)
+    embed.set_footer(text="FunniGuy Bot - Data Persistence System", icon_url=bot.user.avatar.url if bot.user and bot.user.avatar else None)
     
     await interaction.response.send_message(embed=embed)
 

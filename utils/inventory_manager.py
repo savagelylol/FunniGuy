@@ -5,7 +5,7 @@ Handles all item operations, trading, and collections
 import asyncio
 import logging
 from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 
 from .database_manager import DatabaseManager, DatabaseError

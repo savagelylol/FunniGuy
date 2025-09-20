@@ -4,7 +4,7 @@ FunniGuy Discord Bot - Main Bot File
 import os
 import asyncio
 import logging
-from typing import Optional
+from typing import Optional, List
 
 import discord
 from discord.ext import commands
@@ -33,6 +33,10 @@ logger = logging.getLogger(__name__)
 class FunniGuyBot(commands.Bot):
     """Main FunniGuy Bot class"""
     
+    # Type hints for dynamically added attributes
+    data_manager: DataManager
+    initial_extensions: List[str]
+    
     def __init__(self):
         # Define intents
         intents = discord.Intents.default()
@@ -50,7 +54,7 @@ class FunniGuyBot(commands.Bot):
         self.data_manager = DataManager('data')
         
         self.initial_extensions = [
-            # Add cog files here when created
+            'cogs.core',
         ]
     
     async def setup_hook(self):
@@ -109,135 +113,53 @@ class FunniGuyBot(commands.Bot):
         """Handle command errors"""
         if isinstance(error, commands.CommandNotFound):
             embed = create_error_embed("Command not found! Use `/help` to see available commands.")
-            await ctx.send(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingRequiredArgument):
             embed = create_error_embed(f"Missing required argument: {error.param.name}")
-            await ctx.send(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingPermissions):
             embed = create_error_embed("You don't have permission to use this command!")
-            await ctx.send(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
         else:
             logger.error(f"Unhandled command error: {error}", exc_info=True)
             embed = create_error_embed("An unexpected error occurred. Please try again later.")
-            await ctx.send(embed=embed, ephemeral=True)
+            await ctx.send(embed=embed)
 
 
 # Create bot instance
 bot = FunniGuyBot()
 
 
-# Test slash command
-@bot.tree.command(name="ping", description="Test command to check if the bot is working")
-async def ping_command(interaction: discord.Interaction):
-    """Simple ping command to test bot functionality"""
-    # Process command through data manager
-    cmd_result = await bot.data_manager.process_command(
-        interaction.user.id, 
-        interaction.user.name, 
-        interaction.user.display_name,
-        "ping"
-    )
-    
-    if not cmd_result.get('can_execute', False):
-        error_msg = cmd_result.get('error', 'Unknown error')
-        embed = create_error_embed(f"Cannot execute command: {error_msg}")
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
+    """Handle slash command errors"""
+    if isinstance(error, discord.app_commands.CommandNotFound):
+        embed = create_error_embed("Command not found! This command may have been removed or renamed.")
         await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-    
-    latency = round(bot.latency * 1000)
-    embed = create_success_embed(
-        f"Pong! 🏓\nLatency: {latency}ms",
-        title="Bot Status"
-    )
-    await interaction.response.send_message(embed=embed)
-    
-    # Complete command processing
-    await bot.data_manager.complete_command(interaction.user.id, "ping")
-
-
-@bot.tree.command(name="hello", description="Get a friendly greeting from FunniGuy!")
-async def hello_command(interaction: discord.Interaction):
-    """Friendly greeting command"""
-    # Process command through data manager
-    cmd_result = await bot.data_manager.process_command(
-        interaction.user.id, 
-        interaction.user.name, 
-        interaction.user.display_name,
-        "hello"
-    )
-    
-    if not cmd_result.get('can_execute', False):
-        error_msg = cmd_result.get('error', 'Unknown error')
-        embed = create_error_embed(f"Cannot execute command: {error_msg}")
+    elif isinstance(error, discord.app_commands.MissingPermissions):
+        embed = create_error_embed("You don't have permission to use this command!")
         await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-    
-    embed = create_info_embed(
-        f"Hello there, {interaction.user.mention}! 👋\n"
-        f"I'm FunniGuy, your friendly Discord bot! 😄\n"
-        f"I'm here to make your server more fun and entertaining!",
-        title="Hello!"
-    )
-    await interaction.response.send_message(embed=embed)
-    
-    # Complete command processing and award experience
-    completion_result = await bot.data_manager.complete_command(interaction.user.id, "hello")
-    if completion_result.get('achievements_unlocked'):
-        # User could be awarded their first achievement here
-        pass
+    elif isinstance(error, discord.app_commands.CommandOnCooldown):
+        embed = create_error_embed(f"This command is on cooldown. Try again in {error.retry_after:.1f} seconds.")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    elif isinstance(error, discord.app_commands.MissingAnyRole):
+        embed = create_error_embed("You don't have any of the required roles to use this command!")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    elif isinstance(error, discord.app_commands.BotMissingPermissions):
+        embed = create_error_embed("I don't have the required permissions to execute this command!")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    else:
+        logger.error(f"Unhandled slash command error: {error}", exc_info=True)
+        embed = create_error_embed("An unexpected error occurred. Please try again later.")
+        
+        # Check if we can still respond
+        if interaction.response.is_done():
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-@bot.tree.command(name="info", description="Get information about FunniGuy bot")
-async def info_command(interaction: discord.Interaction):
-    """Bot information command"""
-    # Get system status from data manager
-    system_status = await bot.data_manager.get_system_status()
-    db_info = system_status.get('database_info', {})
-    
-    embed = discord.Embed(
-        title="🤖 FunniGuy Bot Info",
-        description="A fun and entertaining Discord bot with comprehensive data persistence!",
-        color=discord.Color.blue()
-    )
-    
-    embed.add_field(
-        name="📊 Stats",
-        value=f"Servers: {len(bot.guilds)}\nLatency: {round(bot.latency * 1000)}ms\nUsers: {db_info.get('total_users', 0)}",
-        inline=True
-    )
-    
-    embed.add_field(
-        name="🛠️ Built with",
-        value="discord.py\nPython 3.11\nJSON Data Persistence",
-        inline=True
-    )
-    
-    embed.add_field(
-        name="💾 Data System",
-        value=f"Status: {'✅ Online' if system_status.get('initialized') else '❌ Offline'}\nData Size: {db_info.get('total_size_mb', 0)}MB",
-        inline=True
-    )
-    
-    embed.add_field(
-        name="🎯 Features",
-        value="• User Profiles & Levels\n• Economy System\n• Inventory & Items\n• Achievements\n• Pet System\n• Marriage System\n• Cooldown Management",
-        inline=False
-    )
-    
-    embed.set_footer(text="FunniGuy Bot - Data Persistence System", icon_url=bot.user.avatar.url if bot.user and bot.user.avatar else None)
-    
-    await interaction.response.send_message(embed=embed)
-
-
-# Regular prefix command for testing
-@bot.command(name="test")
-async def test_command(ctx: commands.Context):
-    """Test prefix command"""
-    embed = create_success_embed(
-        "Prefix commands are working! ✅",
-        title="Test Command"
-    )
-    await ctx.send(embed=embed)
+# Commands are now handled by cogs - see cogs/core.py
 
 
 def main():

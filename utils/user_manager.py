@@ -284,6 +284,11 @@ class UserManager:
                 # Auto-create user if they don't exist
                 await self.create_user_if_not_exists(user_id, f"User{user_id}", f"User{user_id}")
                 profile = await self.get_user_profile(user_id)
+                
+                # If profile is still None after creation, return False
+                if not profile:
+                    logger.error(f"Failed to create or retrieve profile for user {user_id}")
+                    return False
             
             current_date = datetime.utcnow().date().isoformat()
             

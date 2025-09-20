@@ -77,11 +77,14 @@ class DatabaseManager:
         # Data validation
         self.validator = SchemaValidator()
         
-        # Initialize directories
-        asyncio.create_task(self._initialize_directories())
+        # Mark as not initialized - will be initialized async later
+        self._dirs_initialized = False
     
     async def _initialize_directories(self):
         """Create necessary directories if they don't exist"""
+        if self._dirs_initialized:
+            return
+            
         directories = [
             self.data_dir, self.backup_dir, self.temp_dir,
             self.users_dir, self.guilds_dir, self.global_dir, self.marriages_dir
@@ -96,6 +99,7 @@ class DatabaseManager:
         
         # Initialize global data files
         await self._initialize_global_data()
+        self._dirs_initialized = True
     
     async def _initialize_global_data(self):
         """Initialize global data files with default values"""
@@ -347,6 +351,9 @@ class DatabaseManager:
         Returns:
             True if user was created, False if already exists
         """
+        # Ensure directories are initialized
+        await self._initialize_directories()
+        
         user_dir = self.users_dir / str(user_id)
         
         # Check if user already exists
@@ -401,6 +408,9 @@ class DatabaseManager:
         Returns:
             User data dictionary or None if not found
         """
+        # Ensure directories are initialized
+        await self._initialize_directories()
+        
         cache_key = f"user_{user_id}_{data_type}"
         
         # Check cache first

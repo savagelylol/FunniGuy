@@ -50,8 +50,11 @@ class Gambling(commands.Cog):
         embed.add_field(name="Your Roll", value=f"🎲 {user_roll}", inline=True)
         embed.add_field(name="Bot Roll", value=f"🎲 {bot_roll}", inline=True)
         
+        # Deduct bet upfront
+        await self.bot.data_manager.economy.remove_coins(user_id, amount, "pocket", f"Gambling bet ({amount})")
+        
         if user_roll > bot_roll:
-            # User wins - get 1.8x their bet
+            # User wins - pay 1.8x their bet (net profit = 0.8x)
             winnings = int(amount * 1.8)
             await self.bot.data_manager.economy.add_coins(user_id, winnings, "pocket", f"Gambling win ({amount} bet)")
             
@@ -59,14 +62,13 @@ class Gambling(commands.Cog):
             embed.color = discord.Color.green()
             
         elif user_roll == bot_roll:
-            # Tie - get money back
+            # Tie - return bet
+            await self.bot.data_manager.economy.add_coins(user_id, amount, "pocket", f"Gambling tie ({amount} bet)")
             embed.add_field(name="Result", value=f"🤝 **TIE!**\nYou get your **{amount}** coins back!", inline=False)
             embed.color = discord.Color.orange()
             
         else:
-            # User loses
-            await self.bot.data_manager.economy.remove_coins(user_id, amount, "pocket", f"Gambling loss ({amount} bet)")
-            
+            # User loses - bet already deducted
             embed.add_field(name="Result", value=f"💸 **YOU LOST!**\nYou lost **{amount}** coins!", inline=False)
             embed.color = discord.Color.red()
             

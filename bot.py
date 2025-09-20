@@ -58,6 +58,7 @@ class FunniGuyBot(commands.Bot):
             'cogs.economy',
             'cogs.fun',
             'cogs.gambling',
+            'cogs.social',
             'cogs.utility',
         ]
     
@@ -112,10 +113,16 @@ class FunniGuyBot(commands.Bot):
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         """Handle command errors"""
         if isinstance(error, commands.CommandNotFound):
-            embed = create_error_embed("Command not found! Use `/help` to see available commands.")
+            # Silently ignore unknown commands to avoid spam
+            return
+        elif isinstance(error, commands.CommandOnCooldown):
+            embed = create_error_embed(f"⏰ Command on cooldown! Try again in **{error.retry_after:.1f}s**")
             await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingRequiredArgument):
-            embed = create_error_embed(f"Missing required argument: {error.param.name}")
+            embed = create_error_embed(f"Missing required argument: `{error.param.name}`\nUse `fg help` to see command usage.")
+            await ctx.send(embed=embed)
+        elif isinstance(error, commands.BadArgument):
+            embed = create_error_embed(f"Invalid argument provided!\nUse `fg help` to see command usage.")
             await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingPermissions):
             embed = create_error_embed("You don't have permission to use this command!")

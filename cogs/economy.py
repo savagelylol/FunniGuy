@@ -379,6 +379,199 @@ class Economy(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @commands.command(name="hunt")
+    @commands.cooldown(1, 1800, commands.BucketType.user)  # 30 minute cooldown
+    async def hunt_command(self, ctx: commands.Context):
+        """Hunt animals for coins and items"""
+        user_id = ctx.author.id
+        
+        animals = [
+            {"name": "🐰 Rabbit", "coins": (50, 150), "success_rate": 0.7},
+            {"name": "🦌 Deer", "coins": (100, 300), "success_rate": 0.5},
+            {"name": "🐻 Bear", "coins": (200, 600), "success_rate": 0.3},
+            {"name": "🦅 Eagle", "coins": (150, 400), "success_rate": 0.4},
+            {"name": "🐗 Wild Boar", "coins": (300, 800), "success_rate": 0.2},
+        ]
+        
+        animal = random.choice(animals)
+        success = random.random() < animal["success_rate"]
+        
+        if success:
+            coins = random.randint(animal["coins"][0], animal["coins"][1])
+            await self.bot.data_manager.economy.add_coins(user_id, coins, "pocket", f"Hunting {animal['name']}")
+            
+            embed = create_success_embed(
+                f"🎯 **Hunt Successful!**\nYou caught a {animal['name']} and earned **{coins}** coins!",
+                title="Hunting Results"
+            )
+        else:
+            embed = create_error_embed(
+                f"🏹 **Hunt Failed!**\nThe {animal['name']} got away... Better luck next time!",
+                title="Hunting Results"
+            )
+            
+        await ctx.send(embed=embed)
+
+    @commands.command(name="fish")
+    @commands.cooldown(1, 900, commands.BucketType.user)  # 15 minute cooldown
+    async def fish_command(self, ctx: commands.Context):
+        """Go fishing for coins and items"""
+        user_id = ctx.author.id
+        
+        catches = [
+            {"name": "🐟 Small Fish", "coins": (20, 80), "success_rate": 0.6},
+            {"name": "🐠 Tropical Fish", "coins": (50, 150), "success_rate": 0.4},
+            {"name": "🦈 Shark", "coins": (200, 500), "success_rate": 0.1},
+            {"name": "🐙 Octopus", "coins": (100, 250), "success_rate": 0.2},
+            {"name": "🦞 Lobster", "coins": (150, 350), "success_rate": 0.15},
+            {"name": "🗑️ Trash", "coins": (0, 10), "success_rate": 0.3},
+        ]
+        
+        catch = random.choice(catches)
+        success = random.random() < catch["success_rate"]
+        
+        if success and catch["name"] != "🗑️ Trash":
+            coins = random.randint(catch["coins"][0], catch["coins"][1])
+            await self.bot.data_manager.economy.add_coins(user_id, coins, "pocket", f"Fishing {catch['name']}")
+            
+            embed = create_success_embed(
+                f"🎣 **Great Catch!**\nYou caught a {catch['name']} and earned **{coins}** coins!",
+                title="Fishing Results"
+            )
+        elif catch["name"] == "🗑️ Trash":
+            embed = create_error_embed(
+                f"🗑️ **Trash!**\nYou pulled up some trash... At least you're cleaning the ocean?",
+                title="Fishing Results"
+            )
+        else:
+            embed = create_error_embed(
+                f"🎣 **No Luck!**\nThe fish weren't biting today... Try again later!",
+                title="Fishing Results"
+            )
+            
+        await ctx.send(embed=embed)
+
+    @commands.command(name="dig")
+    @commands.cooldown(1, 2700, commands.BucketType.user)  # 45 minute cooldown
+    async def dig_command(self, ctx: commands.Context):
+        """Dig for buried treasure and items"""
+        user_id = ctx.author.id
+        
+        finds = [
+            {"name": "💰 Gold Coins", "coins": (100, 400), "success_rate": 0.4},
+            {"name": "💎 Diamond", "coins": (500, 1000), "success_rate": 0.1},
+            {"name": "🗝️ Old Key", "coins": (50, 200), "success_rate": 0.3},
+            {"name": "🏺 Ancient Artifact", "coins": (200, 600), "success_rate": 0.2},
+            {"name": "🪨 Rock", "coins": (1, 20), "success_rate": 0.5},
+        ]
+        
+        find = random.choice(finds)
+        success = random.random() < find["success_rate"]
+        
+        if success:
+            coins = random.randint(find["coins"][0], find["coins"][1])
+            await self.bot.data_manager.economy.add_coins(user_id, coins, "pocket", f"Digging {find['name']}")
+            
+            embed = create_success_embed(
+                f"⛏️ **Great Find!**\nYou dug up {find['name']} and earned **{coins}** coins!",
+                title="Digging Results"
+            )
+        else:
+            embed = create_error_embed(
+                f"⛏️ **Nothing Found!**\nYou dug around but found nothing... Keep searching!",
+                title="Digging Results"
+            )
+            
+        await ctx.send(embed=embed)
+
+    @commands.command(name="search")
+    @commands.cooldown(1, 1200, commands.BucketType.user)  # 20 minute cooldown
+    async def search_command(self, ctx: commands.Context, *, location: str = None):
+        """Search various locations for coins and items"""
+        user_id = ctx.author.id
+        
+        locations = {
+            "dumpster": {"coins": (10, 100), "risk": 0.2, "emoji": "🗑️"},
+            "couch": {"coins": (50, 200), "risk": 0.1, "emoji": "🛋️"},
+            "car": {"coins": (30, 150), "risk": 0.15, "emoji": "🚗"},
+            "attic": {"coins": (100, 300), "risk": 0.25, "emoji": "🏠"},
+            "basement": {"coins": (80, 250), "risk": 0.3, "emoji": "🏚️"},
+            "forest": {"coins": (60, 200), "risk": 0.35, "emoji": "🌲"},
+        }
+        
+        if location is None or location.lower() not in locations:
+            location_list = ", ".join(locations.keys())
+            embed = create_error_embed(
+                f"Specify a location to search!\n**Available locations:** {location_list}\n\n"
+                f"Usage: `fg search <location>`",
+                title="Search Command"
+            )
+            await ctx.send(embed=embed)
+            return
+            
+        loc = locations[location.lower()]
+        
+        # Check for danger
+        if random.random() < loc["risk"]:
+            penalty = random.randint(50, 200)
+            pocket, _ = await self.bot.data_manager.get_balance(user_id)
+            actual_penalty = min(penalty, pocket)
+            
+            if actual_penalty > 0:
+                await self.bot.data_manager.economy.remove_coins(user_id, actual_penalty, "pocket", f"Search accident at {location}")
+            
+            embed = create_error_embed(
+                f"💥 **Accident!**\nYou got hurt while searching the {loc['emoji']} {location}!\n"
+                f"Medical bills cost you **{actual_penalty}** coins!",
+                title="Search Failed"
+            )
+        else:
+            coins = random.randint(loc["coins"][0], loc["coins"][1])
+            await self.bot.data_manager.economy.add_coins(user_id, coins, "pocket", f"Searching {location}")
+            
+            embed = create_success_embed(
+                f"🔍 **Search Successful!**\nYou searched the {loc['emoji']} {location} and found **{coins}** coins!",
+                title="Search Results"
+            )
+            
+        await ctx.send(embed=embed)
+
+    @commands.command(name="postmemes", aliases=["pm"])
+    @commands.cooldown(1, 180, commands.BucketType.user)  # 3 minute cooldown
+    async def postmemes_command(self, ctx: commands.Context):
+        """Post memes for upvotes and coins"""
+        user_id = ctx.author.id
+        
+        memes = [
+            {"title": "Stonks Meme", "upvotes": (50, 200), "success_rate": 0.6},
+            {"title": "Drake Pointing Meme", "upvotes": (30, 150), "success_rate": 0.7},
+            {"title": "Distracted Boyfriend", "upvotes": (40, 180), "success_rate": 0.65},
+            {"title": "This is Fine Dog", "upvotes": (60, 250), "success_rate": 0.5},
+            {"title": "Surprised Pikachu", "upvotes": (80, 300), "success_rate": 0.4},
+        ]
+        
+        meme = random.choice(memes)
+        success = random.random() < meme["success_rate"]
+        
+        if success:
+            upvotes = random.randint(meme["upvotes"][0], meme["upvotes"][1])
+            coins = upvotes * 2  # 2 coins per upvote
+            await self.bot.data_manager.economy.add_coins(user_id, coins, "pocket", "Posting memes")
+            
+            embed = create_success_embed(
+                f"📱 **Meme Success!**\nYour '{meme['title']}' got **{upvotes}** upvotes!\n"
+                f"You earned **{coins}** coins from ad revenue!",
+                title="Meme Posted"
+            )
+        else:
+            embed = create_error_embed(
+                f"📱 **Meme Flopped!**\nYour '{meme['title']}' got downvoted to oblivion...\n"
+                f"Better luck next time!",
+                title="Meme Posted"
+            )
+            
+        await ctx.send(embed=embed)
+
 
 async def setup(bot):
     """Setup function to add the cog to the bot"""

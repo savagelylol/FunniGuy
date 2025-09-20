@@ -445,6 +445,216 @@ class Gambling(commands.Cog):
             
         await ctx.send(embed=embed)
 
+    @commands.command(name="lottery")
+    async def lottery_command(self, ctx: commands.Context, tickets: int = 1):
+        """Buy lottery tickets for a chance to win big"""
+        if tickets < 1 or tickets > 10:
+            embed = create_error_embed("You can buy 1-10 lottery tickets at a time!\nUsage: `fg lottery <1-10>`")
+            await ctx.send(embed=embed)
+            return
+            
+        user_id = ctx.author.id
+        ticket_price = 100
+        total_cost = tickets * ticket_price
+        
+        pocket, _ = await self.bot.data_manager.get_balance(user_id)
+        
+        if total_cost > pocket:
+            embed = create_error_embed(f"You don't have {total_cost} coins! Lottery tickets cost {ticket_price} coins each.")
+            await ctx.send(embed=embed)
+            return
+            
+        # Deduct cost
+        await self.bot.data_manager.economy.remove_coins(user_id, total_cost, "pocket", f"Lottery tickets ({tickets})")
+        
+        # Check each ticket
+        winnings = 0
+        results = []
+        
+        for i in range(tickets):
+            roll = random.randint(1, 1000)
+            
+            if roll <= 1:  # 0.1% chance
+                prize = 50000
+                winnings += prize
+                results.append(f"Ticket {i+1}: 🏆 **JACKPOT!** {prize} coins")
+            elif roll <= 10:  # 1% chance
+                prize = 5000
+                winnings += prize
+                results.append(f"Ticket {i+1}: 🥇 **Big Win!** {prize} coins")
+            elif roll <= 50:  # 5% chance
+                prize = 500
+                winnings += prize
+                results.append(f"Ticket {i+1}: 🎉 **Win!** {prize} coins")
+            elif roll <= 150:  # 15% chance
+                prize = 200
+                winnings += prize
+                results.append(f"Ticket {i+1}: ✨ Small win! {prize} coins")
+            else:
+                results.append(f"Ticket {i+1}: 💸 No luck...")
+                
+        if winnings > 0:
+            await self.bot.data_manager.economy.add_coins(user_id, winnings, "pocket", f"Lottery winnings ({tickets} tickets)")
+            
+        embed = discord.Embed(title="🎫 Lottery Results", color=discord.Color.gold() if winnings > 0 else discord.Color.red())
+        
+        embed.add_field(name="Tickets Bought", value=str(tickets), inline=True)
+        embed.add_field(name="Total Cost", value=f"{total_cost} coins", inline=True)
+        embed.add_field(name="Total Winnings", value=f"{winnings} coins", inline=True)
+        
+        if len(results) <= 10:
+            embed.add_field(name="Results", value="\n".join(results), inline=False)
+        else:
+            embed.add_field(name="Results", value="\n".join(results[:10]) + f"\n...and {len(results)-10} more", inline=False)
+            
+        net = winnings - total_cost
+        if net > 0:
+            embed.add_field(name="Net Result", value=f"💰 **Profit: {net} coins!**", inline=False)
+        elif net < 0:
+            embed.add_field(name="Net Result", value=f"💸 **Loss: {abs(net)} coins**", inline=False)
+        else:
+            embed.add_field(name="Net Result", value="🤝 **Broke Even**", inline=False)
+            
+        await ctx.send(embed=embed)
+
+    @commands.command(name="rps")
+    async def rps_command(self, ctx: commands.Context, user: discord.Member = None):
+        """Play Rock Paper Scissors"""
+        if user is None or user == ctx.author:
+            # Play vs bot
+            choices = ["rock", "paper", "scissors"]
+            emojis = {"rock": "✊", "paper": "🖐️", "scissors": "✌️"}
+            
+            embed = discord.Embed(
+                title="✊ Rock Paper Scissors",
+                description="Choose your move!",
+                color=discord.Color.blue()
+            )
+            embed.set_footer(text="React with ✊ for Rock, 🖐️ for Paper, or ✌️ for Scissors")
+            
+            message = await ctx.send(embed=embed)
+            
+            for emoji in emojis.values():
+                await message.add_reaction(emoji)
+                
+            def check(reaction, user):
+                return (user == ctx.author and 
+                       str(reaction.emoji) in emojis.values() and 
+                       reaction.message == message)
+            
+            try:
+                reaction, _ = await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
+                
+                user_choice = None
+                for choice, emoji in emojis.items():
+                    if str(reaction.emoji) == emoji:
+                        user_choice = choice
+                        break
+                        
+                bot_choice = random.choice(choices)
+                
+                # Determine winner
+                if user_choice == bot_choice:
+                    result = "It's a tie!"
+                    color = discord.Color.orange()
+                elif (
+                    (user_choice == "rock" and bot_choice == "scissors") or
+                    (user_choice == "paper" and bot_choice == "rock") or
+                    (user_choice == "scissors" and bot_choice == "paper")
+                ):
+                    result = "You win!"
+                    color = discord.Color.green()
+                else:
+                    result = "Bot wins!"
+                    color = discord.Color.red()
+                    
+                embed = discord.Embed(title="✊ Rock Paper Scissors - Results", color=color)
+                embed.add_field(name="Your Choice", value=f"{emojis[user_choice]} {user_choice.title()}", inline=True)
+                embed.add_field(name="Bot Choice", value=f"{emojis[bot_choice]} {bot_choice.title()}", inline=True)
+                embed.add_field(name="Result", value=result, inline=False)
+                
+                await message.edit(embed=embed)
+                
+            except asyncio.TimeoutError:
+                embed = create_error_embed("⏰ You took too long to choose! Game cancelled.")
+                await message.edit(embed=embed)
+                
+        else:
+            embed = create_info_embed("PvP Rock Paper Scissors coming soon! 🚀", title="Coming Soon")
+            await ctx.send(embed=embed)
+
+    @commands.command(name="snake")
+    async def snake_command(self, ctx: commands.Context):
+        """Play a simple snake game for coins"""
+        user_id = ctx.author.id
+        
+        # Simple snake simulation
+        moves = random.randint(5, 20)
+        score = moves * random.randint(10, 50)
+        
+        embed = create_success_embed(
+            f"🐍 **Snake Game Complete!**\n"
+            f"Moves survived: **{moves}**\n"
+            f"Score: **{score}**\n"
+            f"Coins earned: **{score//10}**",
+            title="Snake Game"
+        )
+        
+        coins_earned = score // 10
+        await self.bot.data_manager.economy.add_coins(user_id, coins_earned, "pocket", "Snake game")
+        
+        await ctx.send(embed=embed)
+
+    @commands.command(name="trivia")
+    @commands.cooldown(1, 300, commands.BucketType.user)  # 5 minute cooldown
+    async def trivia_command(self, ctx: commands.Context):
+        """Answer trivia questions for coins"""
+        user_id = ctx.author.id
+        
+        questions = [
+            {"q": "What is 2 + 2?", "answers": ["4", "four"], "reward": 100},
+            {"q": "What planet is closest to the Sun?", "answers": ["mercury"], "reward": 150},
+            {"q": "How many sides does a triangle have?", "answers": ["3", "three"], "reward": 100},
+            {"q": "What is the capital of France?", "answers": ["paris"], "reward": 200},
+            {"q": "What color do you get when you mix red and blue?", "answers": ["purple", "violet"], "reward": 150},
+        ]
+        
+        question = random.choice(questions)
+        
+        embed = discord.Embed(
+            title="🧠 Trivia Question",
+            description=f"**{question['q']}**\n\nType your answer in chat!",
+            color=discord.Color.blue()
+        )
+        embed.set_footer(text=f"Reward: {question['reward']} coins")
+        
+        await ctx.send(embed=embed)
+        
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.channel
+            
+        try:
+            msg = await self.bot.wait_for("message", timeout=30.0, check=check)
+            
+            if msg.content.lower().strip() in question["answers"]:
+                await self.bot.data_manager.economy.add_coins(user_id, question["reward"], "pocket", "Trivia correct")
+                
+                embed = create_success_embed(
+                    f"✅ **Correct!**\nYou earned **{question['reward']}** coins!",
+                    title="Trivia Results"
+                )
+            else:
+                embed = create_error_embed(
+                    f"❌ **Wrong!**\nThe correct answer was: **{question['answers'][0]}**",
+                    title="Trivia Results"
+                )
+                
+            await ctx.send(embed=embed)
+            
+        except asyncio.TimeoutError:
+            embed = create_error_embed("⏰ Time's up! You took too long to answer.")
+            await ctx.send(embed=embed)
+
 
 async def setup(bot):
     """Setup function to add the cog to the bot"""

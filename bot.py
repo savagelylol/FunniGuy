@@ -91,8 +91,8 @@ class FunniGuyBot(commands.Bot):
         
         # Set bot status
         await self.change_presence(
-            activity=discord.Game(name="Making people laugh! 😄"),
-            status=discord.Status.online
+            activity=discord.Game(name="savage got bored"),
+            status=discord.Status.dnd
         )
         
         # Log system status

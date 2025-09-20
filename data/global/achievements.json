@@ -1,0 +1,42 @@
+{
+  "first_command": {
+    "achievement_id": "first_command",
+    "name": "First Steps",
+    "description": "Use your first bot command!",
+    "category": "command_usage",
+    "requirement": 1,
+    "reward_coins": 50,
+    "reward_experience": 10,
+    "hidden": false
+  },
+  "command_master": {
+    "achievement_id": "command_master",
+    "name": "Command Master",
+    "description": "Use 1000 bot commands!",
+    "category": "command_usage",
+    "requirement": 1000,
+    "reward_coins": 5000,
+    "reward_experience": 500,
+    "hidden": false
+  },
+  "first_pet": {
+    "achievement_id": "first_pet",
+    "name": "Pet Owner",
+    "description": "Adopt your first pet!",
+    "category": "collection",
+    "requirement": 1,
+    "reward_coins": 100,
+    "reward_experience": 25,
+    "hidden": false
+  },
+  "millionaire": {
+    "achievement_id": "millionaire",
+    "name": "Millionaire",
+    "description": "Accumulate 1,000,000 coins!",
+    "category": "economy",
+    "requirement": 1000000,
+    "reward_coins": 100000,
+    "reward_experience": 1000,
+    "hidden": false
+  }
+}

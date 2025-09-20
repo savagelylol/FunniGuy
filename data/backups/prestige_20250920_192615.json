@@ -1,0 +1,15 @@
+{
+  "user_id": 999999999999999999,
+  "prestige_level": 0,
+  "prestige_points": 0,
+  "total_prestiges": 0,
+  "prestige_multiplier": 1.0,
+  "last_prestige_date": null,
+  "unlocked_features": [],
+  "prestige_shop_purchases": {},
+  "lifetime_earnings_before_prestige": 0,
+  "passive_income_multiplier": 1.0,
+  "work_multiplier": 1.0,
+  "crime_success_bonus": 0.0,
+  "gambling_luck_bonus": 0.0
+}

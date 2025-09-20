@@ -1,0 +1,266 @@
+Create a complete, fully functional Discord bot in Python using the discord.py library (async version) that is an exact 1:1 replica of the popular Dank Memer Discord bot in terms of features, commands, economy system, item mechanics, games, interactions, and overall gameplay, but rename the bot to "FunniGuy" instead of "Dank Memer". The bot should be deployable on Replit, handling multiple users across servers with persistent data storage. Use SQLite as the database backend for storing user data, inventories, balances, multipliers, friendships, marriages, pets, achievements, and all other stateful elements—ensure the database schema is robust, with tables for users (user_id, pocket_coins, bank_coins, bank_space, level, exp, multipliers, etc.), inventories (user_id, item_id, quantity), items (item_id, name, description, value, type, rarity, effects), friendships (user_id1, user_id2, level), marriages (user_id1, user_id2, status), pets (user_id, pet_type, level, hunger, happiness), achievements (user_id, achievement_id, progress), logs (for currency and item transactions), and any other necessary tables to replicate all features.
+
+The bot should use a command prefix of "fg " (e.g., "fg balance") to differentiate it slightly, but make all command names, usages, and responses mirror Dank Memer's as closely as possible, including witty, sarcastic, or meme-inspired reply texts, embeds, and emojis. Handle cooldowns, risks (e.g., death or failure chances in commands like crime or search), random outcomes, and anti-spam measures identically. Implement rate limiting and error handling for all commands. The bot should support slash commands (/command) in addition to prefixed commands for modern Discord compatibility.
+
+For image manipulation and meme generation features (e.g., commands like meme, image, comment, eject, etc.), use the Pillow library to edit images—download templates or base images from URLs if needed (store them locally in the Replit project), overlay text, apply filters, resize, and generate outputs as attachments. Ensure the bot can fetch external images safely without violating Discord's TOS.
+
+Replicate the full economy system: Users start with 0 coins in pocket and bank, limited bank space (upgradable via items or prestige), and can earn coins through commands like beg, work, daily, weekly, monthly, postmemes, search, dig, fish, hunt, crime, highlow, gamble, blackjack, slots, snake, trivia, stream, adventure, etc. Include random events like finding items, dying (losing coins/items), or jackpots. Coins can be used Now I have better lists.
+
+From , a comprehensive list from fandom wiki.
+
+It's cut off at "Vacation | Take a short break"
+
+But it has many.
+
+From , another list, but shorter.
+
+The fandom one has categories: Currency, Fun, Utility, Music, Items, Animals, Minigames, Config, Donor
+
+The content is cut, but it starts with Currency.
+
+Probably other categories follow.
+
+To get the full, perhaps browse again with different instructions or accept this.
+
+For the purpose, I can use this list to craft the prompt.
+
+The user wants a highly detailed prompt for Replit's Agent 3 to create a 1:1 copy of Dank Memer, called FunniGuy.
+
+So, the prompt should be something like:
+
+"Create a Discord bot in Python using discord.py that is a complete clone of the Dank Memer bot, but named FunniGuy. Include all the following commands and features: [list them all with descriptions].
+
+Use SQLite for database to store user balances, inventories, etc.
+
+For image manipulation, use Pillow.
+
+Implement economy system with coins, bank, pocket.
+
+Implement items system with buy, sell, use.
+
+Implement games like blackjack, slots.
+
+Implement fun commands like meme generation, etc.
+
+Make sure it's deployable on Replit.
+
+Provide the full code, including bot token setup."
+
+Make it highly detailed.
+
+Since the agent is AI, the prompt can describe the functionality.
+
+Also, note that creating a 1:1 copy might infringe on copyrights, but according to safety instructions, as long as it's not disallowed, it's ok. This is not illegal activity, just cloning a bot for personal use? The user says "my 1 to 1 copy", so probably fine.
+
+No moralizing.
+
+Now, to output the prompt.
+
+Since the list is long, the prompt will be long.
+
+I need to compile the list from what I have.
+
+From the two functions, I have a good chunk.
+
+Let me list all unique commands from the sources.
+
+From previous and this.
+
+Currency commands:
+
+Achievements, Advancements, Adventure, Badges, Balance, Bankrob, Beg, Bundles, Compare, Craft, Crime, Currencylog, Daily, Deposit, Dig, Drops, Farm, Fight, Fish, Friends, Giveaway, Highlow, Hunt, Inventory, Item, Leaderboard, Lottery, Market, Marriage, Monthly, Multipliers, Notifications, Pets, Postmemes, Profile, Quests, Remove, Rob, Scratch, Search, Server Events, Shop, Showcase, Stream, Taxcalc, Title, Use, Vacation, Weekly, Withdraw, Work
+
+From other list: blackjack, buy, sell, etc.
+
+Blackjack is in some lists.
+
+In the fandom, it's under currency.
+
+Fun commands from other sources: 8ball, animal, clap, color, comment, delete, eject, emojify, enlarge, fact, fortune, gayrate, hack, image, iq, joke, kill, meme, namecard, pandafact, pet, poll, rate, reddit, roast, run, ship, simprate, trivia, urban, wouldyourather, youtube
+
+Utility: block, currencyconvert, delete, fortune, hack, kill, poll, roast, run, trivia, urban, wouldyourather
+
+Some overlap.
+
+Config: alert, audit, autonsfw, autostatus, disable, enable, ignore, minigames, prefix, settings
+
+Donor: donor status, premiumserver add, remove, list
+
+Music: if any, but perhaps not.
+
+Items: buy, craft, dismantle, displaycase, giveaway, grind, item, market, offer, pet, prestige, recycle, runeshop, sell, share, shop, skin, use
+
+Many overlap.
+
+For the prompt, I can say:
+
+"Build a Discord bot named FunniGuy that replicates all features of Dank Memer, including the following categories and commands:
+
+Currency Commands:
+
+- Balance: Show user's pocket, bank, net worth.
+
+- Beg: Give random coins.
+
+- Daily: Give daily reward.
+
+- ...
+
+And so on for all.
+
+Describe the system: Economy with coins, items collectible, tradable.
+
+Risks in commands like crime, where user can 'die' and lose coins.
+
+Multipliers from items or prestige.
+
+Pet system, farm, adventures.
+
+For fun, image commands require API or local generation.
+
+But since Replit, local with Pillow.
+
+Dank Memer uses image APIs or something, but for clone, simple implementations.
+
+The prompt should be detailed enough to guide the agent to implement each part.
+
+Perhaps structure the prompt as a project description.Create a complete Discord bot in Python using the discord.py library that is a 1:1 functional clone of the popular Dank Memer bot, but rename the bot to "FunniGuy" and adjust any internal references or branding accordingly (e.g., change "Dank Memer" mentions to "FunniGuy" in responses, help texts, and embeds). The bot should be fully deployable on Replit, including setup for environment variables like the bot token and any necessary database connections. Use SQLite as the database for persistent storage of user data, including economies, inventories, profiles, friendships, marriages, pets, farms, and all other stateful elements. Ensure the bot handles multiple servers and users scalably, with proper error handling, cooldowns, and anti-abuse measures similar to Dank Memer.
+
+The bot must implement a comprehensive economy system:
+- Users have a "pocket" (spendable coins) and "bank" (protected storage with max capacity that can be upgraded).
+- Coins can be earned through commands like work, beg, daily rewards, games, crimes, etc., and spent on items, gambling, or trading.
+- Include multipliers for earnings based on items, prestige levels, omega status, upgrades, and voting (simulate voting bonuses).
+- Implement an item system with over 200 collectible items (e.g., fishing pole, rifle, laptop, pizza, meme items like pepe trophy, bank note for bank expansion). Items can be bought, sold, crafted, dismantled, used, recycled, or traded. Some items are consumable (e.g., life savers to avoid death), passive (e.g., multipliers), or active (e.g., tools for hunting/fishing).
+- Risk mechanics: Commands like crime, search, rob can result in gains or losses, including "death" which resets streak or deducts coins (with items to prevent death).
+- Global market for trading items/coins between users.
+- Prestige system: Users can prestige for multipliers after reaching certain wealth thresholds, resetting some progress.
+- Badges, achievements, and bundles for progression tracking and rewards.
+- Tax system on large transactions or winnings.
+- Notifications for events like giveaways, lotteries, or item uses.
+- Server events where users donate and compete for payouts.
+
+Implement all major categories of commands from Dank Memer, with identical functionality, usage syntax (e.g., /command or prefix-based if slash commands aren't exclusive), cooldowns (e.g., 30s for beg, 1h for work), and response formats (use Discord embeds for pretty outputs, with colors, icons, and fun text). If a command involves randomness, use Python's random module for fair outcomes. For any minigames or interactive elements, use reactions or buttons for user input. Here's the full list of commands to implement, organized by category, with detailed descriptions of what each should do:
+
+### Currency/Economy Commands
+- /achievements [user]: Display progress toward unlockable achievements (e.g., earn X coins, complete Y commands), with rewards like badges or multipliers upon completion.
+- /advancements: Show progression features like prestige, omega, upgrades, levels, and vote bonuses. Include subviews for each.
+- /adventure: Consume an adventure ticket (buyable item) to start an interactive text-based adventure with choices leading to rewards or failures.
+- /badges [user]: List earned badges (e.g., collector, grinder) and progress toward others.
+- /balance [user]: Show pocket coins, bank balance, bank max, total net worth, and any active multipliers.
+- /bankrob <user>: Require a group (e.g., 3+ users reacting) to attempt robbing another's bank; success chance based on items, with risks like failure penalties.
+- /beg: Randomly give 0-500 coins or small items, with funny failure messages (cooldown 30s).
+- /bundles: List available bundles (item sets to collect for rewards); /bundles complete <bundle> to claim if complete.
+- /compare <user>: Compare your stats (coins, items, level) to another user's.
+- /craft <item>: Combine ingredients (e.g., wood + metal = tool) to create new items; list recipes if no item specified.
+- /crime: Attempt a random crime (e.g., rob store) for coins/items; 70% success, 30% failure with death/penalty (cooldown 1m).
+- /currencylog [page]: Log all transactions, item gains/losses, with timestamps and reasons.
+- /daily: Give increasing daily coins based on streak (up to 30 days); reset on miss.
+- /deposit <amount|all|max>: Move coins from pocket to bank.
+- /dig: Find random items like worms, coins, or rares (needs shovel item; cooldown 45s).
+- /drops: Show timed limited-time item drops for purchase; allow buying if active.
+- /farm [view|plant|harvest] [user]: Manage a virtual farm – plant seeds, harvest crops for coins/items (needs land/farm items).
+- /fight <user>: PvP fight with health bars, attacks via reactions; winner gets coins.
+- /fish: Catch fish/items with pole; rarity based on luck/items (cooldown 1m).
+- /friends add/remove/list/inspect/share <user> <quantity> <item>: Manage friends list; share items only with friends.
+- /giveaway create <items|coins> <quantity> <item|winners> <hours> [server] [message]: Start a global/server giveaway; /giveaway view to see active ones.
+- /highlow: Guess higher/lower than a number (1-100); bet coins, jackpot on exact.
+- /hunt: Hunt animals/items with rifle (cooldown 1m).
+- /inventory [user] [page]: List owned items with quantities.
+- /item <item_name>: Detailed info on an item (description, value, use, sell price).
+- /leaderboard stats/item/game [global|server] [page]: Rankings for coins, specific items, game wins.
+- /lottery buy/auto <tickets>: Buy tickets for hourly lottery draw; auto enters every hour if enabled.
+- /market post/view/remove/accept/edit <for_items|for_coins> <type> <quantity> <item> <days> [allow_partial] [private]: Global marketplace for offers.
+- /marriage view/levels/divorce [user]: Manage marriages for shared benefits/multipliers.
+- /monthly: Large monthly coin reward.
+- /multipliers: List active multipliers (from items, prestige, etc.) and their effects.
+- /notifications list/search/view [id]: Manage in-bot notifications.
+- /pets view/care/buy/train [pet]: Buy/train pets for bonuses; care minigame to keep them happy.
+- /postmemes: Post a fake meme for random upvotes/coins (cooldown 3m).
+- /profile [user]: Customizable profile with bio, badges, showcase, titles.
+- /quests: Daily/weekly quests for rewards (e.g., use X commands).
+- /remove <item>: Deactivate an active item effect.
+- /rob <user>: Steal from pocket; success based on padlock item.
+- /scratch <bet>: Scratch-off card game for winnings.
+- /search: Search locations (e.g., dumpster) for items/coins; risks like injury.
+- /serverevents donate/pool/donations/logs/payout/run: Manage server-wide events with prize pools.
+- /shop view/buy/sell/sellall <item> <quantity>: Browse/buy/sell items in shop.
+- /showcase view/add/remove/buy [user] <item>: Display items in profile.
+- /stream: Simulate streaming for viewer donations/coins (interactive).
+- /taxcalc <amount>: Calculate bot's tax on an amount.
+- /title list/set <title>: Unlockable titles for profile.
+- /use <item> [target]: Activate item effect (e.g., eat pizza for health).
+- /vacation: Temporarily pause streaks/notifications.
+- /weekly: Weekly coin reward.
+- /withdraw <amount|all|max>: Move coins from bank to pocket.
+- /work: Earn coins from job; advance jobs for better pay (cooldown 1h).
+
+### Fun/Image Commands
+Implement image manipulation using Pillow library for local generation (no external APIs). Load templates from files or URLs if needed.
+- /8ball <question>: Random magic 8-ball answers.
+- /animal <type>: Random animal fact/image.
+- /clap <text>: Add 👏 between words.
+- /color <hex>: Show color preview.
+- /comment <text>: Generate YouTube comment image.
+- /delete <user>: Fake delete trash image.
+- /eject <user>: Among Us eject meme.
+- /emojify <text>: Turn text to emojis.
+- /enlarge <emoji>: Big emoji image.
+- /fact: Random fact.
+- /fortune: Fortune cookie message.
+- /gayrate <user>: Joke gay percentage.
+- /hack <user>: Fake hack animation.
+- /image <filter> <url>: Apply filters (e.g., grayscale, invert) to image.
+- /iq <user>: Joke IQ score.
+- /joke: Random joke.
+- /kill <user>: Fake kill message.
+- /meme [subreddit]: Random meme image/caption.
+- /namecard <text>: Generate name card.
+- /pandafact: Panda fact.
+- /poll <question> <options>: Create poll.
+- /rate <thing>: Rate out of 10.
+- /reddit <subreddit>: Random post.
+- /roast <user>: Insult joke.
+- /run <text>: Running text animation.
+- /ship <user1> <user2>: Love percentage.
+- /simprate <user>: Joke simp percentage.
+- /trivia [category]: Trivia question with rewards.
+- /urban <term>: Urban Dictionary definition.
+- /wouldyourather: WYR question.
+- /youtube <search>: Fake YouTube search results.
+
+### Utility/Config Commands
+- /alert <type> <on/off>: Toggle alerts (e.g., for events).
+- /audit: Server audit log for bot actions.
+- /autonsfw <on/off>: Auto NSFW detection.
+- /autostatus <on/off>: Auto status updates.
+- /block add/remove/list <user>: Block users from interactions.
+- /currencyconvert <amount> <from> <to>: Convert currencies (fun, not real).
+- /disable/enable <command>: Server admins disable commands.
+- /ignore <channel>: Ignore bot in channel.
+- /minigames <on/off>: Toggle minigames.
+- /prefix <new>: Change command prefix.
+- /settings: View/edit bot settings per server.
+
+### Donor/Premium Commands
+- /donor status: Show premium status.
+- /donor premiumserver add/remove/list [id]: Manage premium servers for extras.
+
+### Minigames/Games
+- /blackjack <bet>: Card game vs bot.
+- /gamble <bet>: Dice roll vs bot.
+- /rps <user>: Rock paper scissors.
+- /tictactoe <user>: Tic tac toe.
+- /connect4 <user>: Connect 4.
+- /slots <bet>: Slot machine.
+- /snake: Snake game for scores/rewards.
+
+### Other Features
+- Cooldown system using discord.py's cooldown decorator.
+- Leveling system based on command usage for XP/multipliers.
+- Anti-spam: Rate limits per user/server.
+- Help command: /help [category|command] with paginated embeds listing all.
+- On ready/event handlers for status, logging.
+- Error handling for invalid inputs, with user-friendly messages.
+- Use async for efficiency.
+
+Provide the full code structure: main.py with bot setup, cogs for categories (e.g., economy.py, fun.py), database schema (tables for users, items, transactions, etc.), and any asset files (e.g., images for memes). Include comments explaining each part. Test the bot for bugs and ensure it matches Dank Memer's behavior as closely as possible. If something can't be exactly replicated (e.g., external APIs), use approximations or placeholders.
